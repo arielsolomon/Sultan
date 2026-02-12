@@ -76,9 +76,9 @@ def get_image_files(directory: str) -> List[str]:
 def main():
     parser = argparse.ArgumentParser(description='Extract ResNet50 features (2048-dim)')
     
-    parser.add_argument('--input_dir', type=str, default='/work/Sultan/data/for_resnet/0/', help='Directory with images')
+    parser.add_argument('--input_dir', type=str, default='/work/Sultan/data/for_resnet/1/', help='Directory with images')
     parser.add_argument('--input_image', type=str, default=None, help='Single image file')
-    parser.add_argument('--output_dir', type=str, default='/work/Sultan/data/feature_vec/', help='Output directory')
+    parser.add_argument('--output_dir', type=str, default='/work/Sultan/data/feature_vec_1/', help='Output directory')
     parser.add_argument('--save_average', action='store_true', default=True, help='Save averaged features')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--device', type=str, default=None, choices=['cuda', 'cpu', None])
