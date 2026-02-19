@@ -15,7 +15,7 @@ CLASS_0_DIR = '/work/Sultan/data/feature_vec_0/individual_features/'
 CLASS_1_DIR = '/work/Sultan/data/feature_vec_1/individual_features_all/'
 OUTPUT_MODEL_PATH = '/work/Sultan/models/ocsvm_model.pkl'
 OUTPUT_SCALER_PATH = '/work/Sultan/models/ocsvm_scaler.pkl'
-NUM_ITERATIONS = 50 
+NUM_ITERATIONS = 20 
 TEST_OUTPUT_CSV = '/work/Sultan/oc_svm_res/iterative_predictions_with_metrics'+str(NUM_ITERATIONS)+'.csv'
 NORMALIZE_FEATURES = True
 
