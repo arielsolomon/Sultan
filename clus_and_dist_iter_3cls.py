@@ -29,10 +29,10 @@ from sklearn.preprocessing import StandardScaler
 # ─────────────────────────────────────────────
 FOLDER_CLASS0 = "/work/Sultan/data/feature_vec_0/individual_features_test/"
 FOLDER_CLASS1 = "/work/Sultan/data/feature_vec_1/individual_features_all/"
-FOLDER_NEG    = "/work/Sultan/data/feature_vec_motorcycles/individual_features/"
+FOLDER_NEG    = "/work/Sultan/data/feature_vec_tanks/individual_features/"
 OUTPUT_FOLDER = "/work/Sultan/results/"
 
-NUM_ITER           = 20
+NUM_ITER           = 10
 N_SAMPLES_CLASS0   = 9
 N_CLUSTERS_KMEANS  = 2
 DBSCAN_EPS         = 0.5
@@ -156,7 +156,7 @@ def save_summary_table(km_c0, db_c0,
 
     # Known class 1
     rows.append([
-        "known_class1", "1",
+        "known_class1", "Pickup trucks",
         f"{np.mean(km_c1):.4f}", "—",
         f"{np.nanmean(db_c1):.4f}", "—"
     ])
@@ -166,7 +166,7 @@ def save_summary_table(km_c0, db_c0,
     db_test_cluster = Counter(db_test_labels).most_common(1)[0]
 
     rows.append([
-        "test_vec", "0",
+        "test_vec", "Vehicles",
         f"{np.mean(km_test):.4f}",
         f"{label_name(km_test_cluster[0])} ({km_test_cluster[1]}/{NUM_ITER} iters)",
         f"{np.nanmean(db_test):.4f}",
@@ -178,7 +178,7 @@ def save_summary_table(km_c0, db_c0,
     db_neg_cluster = Counter(db_neg_labels).most_common(1)[0]
 
     rows.append([
-        "negative_control", "NC",
+        "negative_control", "Tanks",
         f"{np.mean(km_neg):.4f}",
         f"{label_name(km_neg_cluster[0])} ({km_neg_cluster[1]}/{NUM_ITER} iters)",
         f"{np.nanmean(db_neg):.4f}",
@@ -247,7 +247,7 @@ def save_summary_table(km_c0, db_c0,
     ax.set_title(
         f"Average distance to cluster centroid  ({NUM_ITER} iterations)\n"
         "Class-0 slots (white)  |  Known class-1 (red)  |  "
-        "test_vec (green)  |  negative_control (purple)",
+        "test_vec (green)  |  negative_control_tanks (purple)",
         color="white",
         fontsize=12,
         fontweight="bold",
@@ -258,7 +258,7 @@ def save_summary_table(km_c0, db_c0,
 
     png_path = os.path.join(
         OUTPUT_FOLDER,
-        "summary_table_3class_"+str(N_CLUSTERS_KMEANS)+"_centroid.png"
+        "summary_table_3class_Neg_cont_Tanks_"+str(N_CLUSTERS_KMEANS)+"_centroid.png"
     )
 
     plt.savefig(
