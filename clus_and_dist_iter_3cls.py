@@ -4,7 +4,7 @@ Clustering Analysis: KMeans & DBSCAN (3-class evaluation)
 Per iteration (12 vectors total):
   - 9 randomly sampled from class-0
   - 1 randomly sampled from class-1 (known outlier)
-  - 1 randomly sampled from class-1 (test_vec)
+  - 1 randomly sampled from class-0 (test_vec)
   - 1 randomly sampled from negative-control folder
 
 Outputs:
@@ -166,7 +166,7 @@ def save_summary_table(km_c0, db_c0,
     db_test_cluster = Counter(db_test_labels).most_common(1)[0]
 
     rows.append([
-        "test_vec", "1",
+        "test_vec", "0",
         f"{np.mean(km_test):.4f}",
         f"{label_name(km_test_cluster[0])} ({km_test_cluster[1]}/{NUM_ITER} iters)",
         f"{np.nanmean(db_test):.4f}",
@@ -258,7 +258,7 @@ def save_summary_table(km_c0, db_c0,
 
     png_path = os.path.join(
         OUTPUT_FOLDER,
-        "summary_table_3class_dark.png"
+        "summary_table_3class_"+str(N_CLUSTERS_KMEANS)+"_centroid.png"
     )
 
     plt.savefig(
