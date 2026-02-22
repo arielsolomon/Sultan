@@ -22,13 +22,17 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.preprocessing import StandardScaler
+"""how to get current date in format DD_MM"""
+from datetime import datetime
+current_date = datetime.now().strftime("%d_%m") 
+
 
 # ─────────────────────────────────────────────
 # CONFIG
 # ─────────────────────────────────────────────
-FOLDER_CLASS0      = "/home/user1/ariel/Sultan/data/feature_vec_0/individual_features_test"
-FOLDER_CLASS1      = "/home/user1/ariel/Sultan/data/feature_vec_1/individual_features_all"
-OUTPUT_FOLDER      = "/home/user1/ariel/Sultan/data/results"
+FOLDER_CLASS0      = "/work/Sultan/data/feature_vec_0/individual_features_test/"
+FOLDER_CLASS1      = "/work/Sultan/data/feature_vec_1/individual_features_all/"
+OUTPUT_FOLDER      = "/work/Sultan/results/"
 
 NUM_ITER           = 20
 N_SAMPLES_CLASS0   = 9
@@ -233,7 +237,7 @@ def save_summary_table(km_c0, db_c0,
     )
 
     plt.tight_layout()
-    png_path = os.path.join(OUTPUT_FOLDER, "summary_table_2clsKM_3samDBSCAN.png")
+    png_path = os.path.join(OUTPUT_FOLDER, "summary_table_2clsKM_3samDBSCAN_"+current_date+".png")
     plt.savefig(png_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close(fig)
     print(f"🖼  PNG  saved → {png_path}")
