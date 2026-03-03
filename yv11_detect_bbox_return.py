@@ -56,7 +56,7 @@ def save_image_with_bboxes(image_path,
     save_path = os.path.join(save_dir, f"{name}_bbox.jpg")
     cv2.imwrite(save_path, img)
     return save_path
-
+km_exists = True
 all_vec0, all_vec1 = [], []
 vec0_path = '/work/Sultan/data/feature_vec_0/individual_features/'
 vec1_path = '/work/Sultan/data/feature_vec_1/individual_features_all/'
@@ -67,7 +67,13 @@ all_vec1.extend([np.load(f) for f in random.sample(glob.glob(os.path.join(vec1_p
 X = np.vstack([all_vec0,all_vec1])
 X_scaled = preprocess(X)
 # do kmeans train only once
-km = run_kmeans(X_scaled, train=True)
+if not km_exists:
+    km = run_kmeans(X_scaled, train=False)
+    torch.save(km, "/work/Sultan/models/kmeans_model.pt")
+# km already exists
+else:
+    km = torch.load("/work/Sultan/models/kmeans_model.pt")  
+
 # model resnet 50 for feature vector extraction
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # resnet = models.resnet50(pretrained=True)
