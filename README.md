@@ -6,3 +6,11 @@
 6. If one wants to compare feature vectors: use compare_F_vectors.py using cosine similarity
 7. For clustering I used tsne (tsne_f_vector.py)
 8. To train one class SVM (with your common class) and predict  with rare or mixture of rare/common class, use train_OC-SVM_with_pred.py. 
+9. Full pipeline (yv11_detect_bbox_return.py) inludes:
+      a. trained kmeans model on feature vector from class 0 class 1 (0 is the class and 1 is the rare/subclass of class 0)
+      b. Object detection with yolov11
+      c. Feature extraction using resnet model
+      d. predict to train kmeans model
+      e. Plot only rare class detection on original image
+
+        
