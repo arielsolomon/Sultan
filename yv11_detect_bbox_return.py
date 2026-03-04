@@ -11,14 +11,15 @@ import glob
 import random
 from typing import Union, List, Tuple
 
-
-def preprocess(X: np.ndarray):
-    scaler = StandardScaler()
-    return scaler.fit_transform(X)
+# Create a single, global scaler instance
+global_scaler = StandardScaler()
+def preprocess_train(X: np.ndarray):
+    # This is only used ONCE at the start to "learn" the distribution
+    return global_scaler.fit_transform(X)
 
 def run_kmeans(X_scaled, km=None, train=False):
     if train:
-        km = KMeans(n_clusters=2, random_state=42, n_init=10)
+        km = KMeans(n_clusters=2, random_state=42, n_init=24)
         km.fit(X_scaled)
         return km
     else:
@@ -37,6 +38,7 @@ def save_image_with_bboxes(image_path,
                            color = (0,255,0),
                            thickness = 1):
     os.makedirs(save_dir, exist_ok=True)
+    if not bboxes: return None
     img = cv2.imread(image_path)
     if img is None:
         raise ValueError(f"Could not read image: {image_path}")
@@ -56,37 +58,43 @@ def save_image_with_bboxes(image_path,
     save_path = os.path.join(save_dir, f"{name}_bbox.jpg")
     cv2.imwrite(save_path, img)
     return save_path
-km_exists = True
+km_exists = False
 all_vec0, all_vec1 = [], []
-vec0_path = '/work/Sultan/data/feature_vec_0/individual_features/'
-vec1_path = '/work/Sultan/data/feature_vec_1/individual_features_all/'
+vec0_path = '/work/Sultan/data/rotem_non_pickups_f_vectors/individual_features/'
+vec1_path = '/work/Sultan/data/rotem_pickups_f_vectors/individual_features/'
 # all_vec0([np.load(f) for f in random.sample(glob.glob(os.path.join(vec0_path, '*.npy')), k=10)])
 
-all_vec0.extend([np.load(f) for f in random.sample(glob.glob(os.path.join(vec0_path, '*.npy')), k=25)])
-all_vec1.extend([np.load(f) for f in random.sample(glob.glob(os.path.join(vec1_path, '*.npy')), k=25)])
+all_vec0.extend([np.load(f) for f in random.sample(glob.glob(os.path.join(vec0_path, '*.npy')), k=24)])
+all_vec1.extend([np.load(f) for f in random.sample(glob.glob(os.path.join(vec1_path, '*.npy')), k=24)])
 X = np.vstack([all_vec0,all_vec1])
-X_scaled = preprocess(X)
+X_scaled = preprocess_train(X) # This fits the global_scaler to your 48 samples
 # do kmeans train only once
 if not km_exists:
-    km = run_kmeans(X_scaled, train=False)
+    km = run_kmeans(X_scaled, train=True)
     torch.save(km, "/work/Sultan/models/kmeans_model.pt")
 # km already exists
 else:
-    km = torch.load("/work/Sultan/models/kmeans_model.pt")  
+    km = torch.load("/work/Sultan/models/kmeans_model.pt", weights_only=False)
+    #km = torch.load("/work/Sultan/models/kmeans_model.pt")  
 
 # model resnet 50 for feature vector extraction
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # resnet = models.resnet50(pretrained=True)
 
 # model = nn.Sequential(*list(resnet.children())[:-1])  
-model = torch.load("/work/Sultan/models/resnet_feature_model.pt").to(device).eval()            
+torch.serialization.add_safe_globals([torch.nn.modules.container.Sequential])
+#model = torch.load("/work/Sultan/models/resnet_feature_model.pt").to(device).eval()            
+model = torch.load(
+    "/work/Sultan/models/resnet_feature_model.pt", 
+    weights_only=False
+).to(device).eval()
 
 # Options: "webcam", "video", or "folder"
 input_type = "folder" 
 
-model_yv11 = YOLO("/work/Sultan/yv11/weights/yolo11l.pt")  
+model_yv11 = YOLO("/work/Sultan/yolov11/weights/best_L.pt")  
 video_path = "path/to/your/video.mp4"
-folder_path = "/work/Sultan/data/nopickup/images/all_classes/test_yolo/"
+folder_path = "/work/Sultan/data/rotem_mini/"
 
 # Determine the source string/index
 if input_type == "webcam":
@@ -127,11 +135,15 @@ for frame_idx, result in enumerate(results):
             # Meta-data
             cls_id = int(box.cls[0])
             f_vec = model(torch.from_numpy(crop).permute(2, 0, 1).unsqueeze(0).float().to(device)).squeeze().cpu().detach().numpy()
-            f_vec_scaled = preprocess(f_vec.reshape(1, -1)) # Scale the new vector using the same scaler
-            cluster = km.predict(f_vec_scaled)[0]#
+
+            # Use .transform() so it uses the scales learned from your 48 training samples
+            f_vec_scaled = global_scaler.transform(f_vec.reshape(1, -1)) 
+
+            cluster = km.predict(f_vec_scaled)[0]
 
             if cluster == 0:
                 print("More similar to Class 0")
+                name = 'non_pickup'
 
             else:
                 print("More similar to Class 1")
@@ -150,10 +162,14 @@ for frame_idx, result in enumerate(results):
             
             # Pinpointing the box in the console
             print(f"  -> Found Object {box_idx}: Class {cluster} at {box.xyxy[0].cpu().numpy().astype(int).astype(int)}")
-    save_image_with_bboxes(result.path, boxes1, 'pickup', "/work/Sultan/runs/", (0,255,0), 1)
+    if boxes1:     
+        save_image_with_bboxes(result.path, boxes1, 'pickup', "/work/Sultan/runs/", (0,255,0), 1)
+    else:
+        continue
     counter += 1
-    if counter==6:
-        break
+    boxes1 = []
+    # if counter==6:
+    #     break
 
 
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
