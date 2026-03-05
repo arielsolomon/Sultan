@@ -35,7 +35,7 @@ class ResNet50FeatureExtractor:
     def extract_batch(self, image_paths: List[str], batch_size: int = 32) -> List[np.ndarray]:
         all_features = []
         
-        for i in tqdm(range(0, len(image_paths), batch_size), desc="Extracting"):
+        for i in tqdm(range(0, len(image_paths[:24]), batch_size), desc="Extracting"):
             batch_paths = image_paths[i:i + batch_size]
             batch_images = []
             
@@ -76,10 +76,10 @@ def get_image_files(directory: str) -> List[str]:
 def main():
     parser = argparse.ArgumentParser(description='Extract ResNet50 features (2048-dim)')
     
-    parser.add_argument('--input_dir', type=str, default='/work/Sultan/data/tanks/', help='Directory with images')
+    parser.add_argument('--input_dir', type=str, default='/work/Sultan/data/rotem_vehicles_crops/', help='Directory with images')
     parser.add_argument('--input_image', type=str, default=None, help='Single image file')
-    parser.add_argument('--output_dir', type=str, default='/work/Sultan/data/feature_vec_tanks/', help='Output directory')
-    parser.add_argument('--save_average', action='store_true', default=True, help='Save averaged features')
+    parser.add_argument('--output_dir', type=str, default='/work/Sultan/data/rotem_non_pickups_f_vectors/', help='Output directory')
+    parser.add_argument('--save_average', action='store_true', default=False, help='Save averaged features')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size')
     parser.add_argument('--device', type=str, default=None, choices=['cuda', 'cpu', None])
     
